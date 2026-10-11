@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navita Study Plan Builder</title>
+<meta name="description" content="Counselor tool that turns a student interview into a complete study-abroad plan under Kuwait's scholarship regulations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Poppins:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- sign-in gate -->
+<div class="gate" id="gate">
+  <div class="box">
+    <img src="assets/navita-logo.jpg" alt="Navita">
+    <h2>Study Plan Builder</h2>
+    <p>Sign in with your Navita account</p>
+    <div id="gateErr"></div>
+    <div class="f"><label>Email</label><input type="text" id="authEmail" autocomplete="username"></div>
+    <div class="f"><label>Password</label><input type="password" id="authPass" autocomplete="current-password"></div>
+    <button class="btn btn-navy" id="authBtn" style="width:100%;justify-content:center">Sign in</button>
+    <p style="margin:14px 0 0"><a href="#" id="forgotBtn" style="font-size:12.5px">Forgot your password?</a></p>
+  </div>
+</div>
+
+<header>
+  <div class="wrap"><div class="hdr">
+    <span class="brandmark"><img src="assets/navita-logo.jpg" alt="Navita"></span>
+    <span class="rule"></span>
+    <div>
+      <h1>Study Plan Builder</h1>
+      <div class="sub">Navita · Al Shamlan EDU — counselor tool</div>
+    </div>
+    <div class="hdr-actions">
+      <span class="who" id="who"></span>
+      <button class="btn" id="openBtn">Saved plans</button>
+      <button class="btn" id="newBtn">New</button>
+      <button class="btn" id="saveBtn">Save</button>
+      <button class="btn btn-navy" id="buildBtn">Build the plan →</button>
+    </div>
+  </div></div>
+  <div class="stripe"></div>
+</header>
+
+<!-- ==================== FORM ==================== -->
+<div id="formView"><div class="wrap"><div class="layout">
+<main>
+
+  <section class="card"><h2><span class="num">1</span> Session<span class="hint">appears on the report header</span></h2>
+    <div class="body"><div class="grid">
+      <div class="f"><label>Student full name</label><input type="text" id="q_name" placeholder="Full name as in the civil ID"></div>
+      <div class="f"><label>Civil ID</label><input type="text" id="q_cid" placeholder="000000000000"></div>
+      <div class="f"><label>Phone</label><input type="tel" id="q_phone" placeholder="+965 ..."></div>
+      <div class="f"><label>Counselor</label><input type="text" id="q_counselor"></div>
+      <div class="f"><label>Interview date</label><input type="date" id="q_date"></div>
+      <div class="f"><label>Scholarship results announced on</label><input type="date" id="q_results">
+        <span class="note">All ministry deadlines are counted from this date.</span></div>
+    </div></div>
+  </section>
+
+  <section class="card"><h2><span class="num">2</span> Eligibility<span class="hint">these decide the track</span></h2>
+    <div class="body">
+      <div class="grid">
+        <div class="f"><label>Kuwaiti national</label><div class="seg" data-seg="nationality">
+          <button data-v="yes">Yes</button><button data-v="no">No</button></div></div>
+        <div class="f"><label>Date of birth</label><input type="date" id="q_dob"></div>
+        <div class="f"><label>Current status</label><select id="q_status">
+          <option value="fresh">School leaver, has not started university</option>
+          <option value="selffund">Studying abroad at own expense</option>
+          <option value="inkuwait">Studying inside Kuwait</option>
+          <option value="diploma">Holds an applied-colleges diploma</option>
+          <option value="expelled">Was on a scholarship, dismissed or withdrew</option>
+          <option value="bachelor">Holds a bachelor's degree</option>
+        </select></div>
+      </div>
+      <div style="margin-top:12px">
+        <label class="chk"><input type="checkbox" id="q_prevSch"> Previously received a scholarship or grant for a bachelor's, and has not repaid it</label>
+        <label class="chk"><input type="checkbox" id="q_prevEnded"> A previous external scholarship ended in dismissal or withdrawal after arriving in the host country</label>
+        <label class="chk"><input type="checkbox" id="q_employed"> Employed by a state body</label>
+        <label class="chk"><input type="checkbox" id="q_diplomat"> Child of a serving Kuwaiti diplomat, or one who left the post within the last ten years</label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="sec_hs"><h2><span class="num">3</span> High school<span class="hint">percentage and stream are calculated, not asked</span></h2>
+    <div class="body">
+      <div class="grid">
+        <div class="f"><label>Certificate type</label><select id="q_cert">
+          <option value="kw">Kuwaiti unified</option>
+          <option value="en">English (IGCSE + AS/A-Level)</option>
+          <option value="us">American</option>
+          <option value="ib">International Baccalaureate</option>
+          <option value="sa">Saudi</option>
+          <option value="other">Other, equivalated</option>
+        </select></div>
+        <div class="f"><label>Graduation year</label><select id="q_gradYear"></select></div>
+        <div class="f" id="f_stream"><label>Stream</label><div class="seg" data-seg="stream">
+          <button data-v="science">Science</button><button data-v="arts">Arts</button></div></div>
+        <div class="f" id="f_pct"><label>Percentage</label><input type="number" id="q_pct" min="0" max="100" step="0.01" placeholder="e.g. 88.5"></div>
+      </div>
+
+      <div id="f_subjects" style="display:none;margin-top:14px">
+        <table class="subj"><thead><tr><th>Subject</th><th style="width:105px">Level</th><th style="width:95px">Grade</th><th style="width:120px">Exam session</th><th class="x"></th></tr></thead>
+          <tbody id="subjBody"></tbody></table>
+        <button class="btn" id="addSubj" style="margin-top:9px">+ Add subject</button>
+        <div class="note" style="margin-top:7px;color:var(--text-3);font-size:11.5px">
+          Eight subjects minimum, at least two at AS or A-Level. AS and A grades do not count towards the percentage.
+          Arabic, Islamic education, Quran and non-academic subjects are excluded automatically.</div>
+      </div>
+
+      <div id="f_us" style="display:none;margin-top:12px">
+        <label class="chk"><input type="checkbox" id="q_usSci"> Passed Biology, Chemistry, Physics, Algebra 2, Calculus and Pre-calculus over two regular semesters</label>
+      </div>
+
+      <div id="f_ib" style="display:none;margin-top:12px"><div class="grid">
+        <div class="f"><label>Subjects passed</label><input type="number" id="q_ibSubj" min="0" max="8" placeholder="6"></div>
+        <div class="f"><label>Higher-level subjects</label><input type="number" id="q_ibHL" min="0" max="6" placeholder="3"></div>
+        <div class="f"><label>Total points</label><input type="number" id="q_ibPts" min="0" max="45" placeholder="36"></div>
+      </div>
+        <label class="chk"><input type="checkbox" id="q_ibMathEng"> Mathematics and English are among the six subjects</label>
+        <label class="chk"><input type="checkbox" id="q_ibTok"> Passed Theory of Knowledge and the Extended Essay</label>
+        <label class="chk"><input type="checkbox" id="q_ibSci"> Two sciences and one mathematics subject, which makes the certificate count as science stream</label>
+      </div>
+
+      <div id="f_sa" style="display:none;margin-top:12px"><div class="grid">
+        <div class="f"><label>Qudurat score</label><input type="number" id="q_qud" min="0" max="100"></div>
+        <div class="f"><label>Tahsili score</label><input type="number" id="q_tah" min="0" max="100"></div>
+      </div></div>
+
+      <div id="f_equiv" style="display:none;margin-top:12px">
+        <div class="f"><label>Ministry of Education equivalency</label><select id="q_equiv">
+          <option value="done">Issued</option><option value="progress">In progress</option><option value="no">Not started</option>
+        </select></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card"><h2><span class="num">4</span> Language and tests</h2>
+    <div class="body"><div class="grid">
+      <div class="f"><label>English test</label><select id="q_langStatus">
+        <option value="none">Not taken</option><option value="booked">Booked</option><option value="done">Result in hand</option></select></div>
+      <div class="f"><label>Test type</label><select id="q_langType">
+        <option value="ielts">IELTS Academic</option><option value="ukvi">IELTS UKVI Academic</option><option value="toefl">TOEFL</option></select></div>
+      <div class="f"><label>Overall score</label><input type="number" id="q_langOverall" step="0.5" placeholder="6.5"></div>
+      <div class="f"><label>Lowest band</label><input type="number" id="q_langBand" step="0.5" placeholder="6.0"></div>
+      <div class="f"><label>Test date</label><input type="date" id="q_langDate"></div>
+      <div class="f"><label>Test centre</label><select id="q_langWhere">
+        <option value="kw">Inside Kuwait</option><option value="out">Outside Kuwait</option></select></div>
+      <div class="f"><label>National capacity tests</label><select id="q_natTests">
+        <option value="no">Not taken</option><option value="booked">Booked</option><option value="done">Taken</option></select></div>
+      <div class="f"><label>Capacity test score</label><input type="number" id="q_natScore" step="0.1" placeholder="optional"></div>
+    </div>
+    <div style="margin-top:10px">
+      <label class="chk"><input type="checkbox" id="q_ucat"> Sat or booked the UCAT medical aptitude test</label>
+      <label class="chk"><input type="checkbox" id="q_sat"> Sat or booked the SAT</label>
+    </div></div>
+  </section>
+
+  <section class="card"><h2><span class="num">5</span> Student preferences</h2>
+    <div class="body">
+      <div class="grid">
+        <div class="f"><label>Preferred major 1</label><select id="q_major1" class="majorSel"></select></div>
+        <div class="f"><label>Preferred major 2</label><select id="q_major2" class="majorSel"></select></div>
+        <div class="f"><label>Preferred major 3</label><select id="q_major3" class="majorSel"></select></div>
+        <div class="f"><label>Preferred country 1</label><select id="q_ctry1" class="ctrySel"></select></div>
+        <div class="f"><label>Preferred country 2</label><select id="q_ctry2" class="ctrySel"></select></div>
+        <div class="f"><label>Preferred country 3</label><select id="q_ctry3" class="ctrySel"></select></div>
+      </div>
+      <div style="margin-top:11px">
+        <label class="chk"><input type="checkbox" id="q_merit"> Aiming for the merit scholarship programme</label>
+        <label class="chk"><input type="checkbox" id="q_planB"> Willing to study at own expense for a year, then apply to join the scholarship</label>
+        <label class="chk"><input type="checkbox" id="q_sibling"> Has a sibling already studying in one of the preferred countries</label>
+        <label class="chk"><input type="checkbox" id="q_married"> Married</label>
+        <label class="chk"><input type="checkbox" id="q_spouseStudy" style="margin-left:18px"> The spouse will accompany and wishes to study</label>
+        <label class="chk"><input type="checkbox" id="q_health"> Has a health condition that needs ongoing care</label>
+      </div>
+      <div class="grid" style="margin-top:11px">
+        <div class="f"><label>Accompanying children</label><input type="number" id="q_kids" min="0" max="10" value="0"></div>
+        <div class="f" id="f_guardian"><label>Guardian arrangement, required under 18</label><select id="q_guardian">
+          <option value="">Not decided</option>
+          <option value="parent">A parent will accompany</option>
+          <option value="sibling">A sibling aged 21 or over</option>
+          <option value="homestay">Approved family accommodation</option>
+        </select></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="sec_join" style="display:none"><h2><span class="num">6</span> Joining the scholarship</h2>
+    <div class="body"><div class="grid">
+      <div class="f"><label>Current university</label><input type="text" id="q_jUni" list="uniList"><datalist id="uniList"></datalist></div>
+      <div class="f"><label>Current major</label><input type="text" id="q_jMajor"></div>
+      <div class="f"><label>Study system</label><select id="q_jSystem">
+        <option value="sem">Semester</option><option value="qtr">Quarter</option><option value="yr">Yearly</option></select></div>
+      <div class="f"><label>Credits passed</label><input type="number" id="q_jCredits" min="0"></div>
+      <div class="f"><label>CGPA</label><input type="number" id="q_jGpa" step="0.01" min="0" max="4"></div>
+      <div class="f"><label>Study started</label><input type="date" id="q_jStart"></div>
+    </div>
+    <label class="chk" style="margin-top:9px"><input type="checkbox" id="q_jBreak"> Has been out of study for more than one academic year</label>
+    </div>
+  </section>
+
+  <section class="card" id="sec_rejoin" style="display:none"><h2><span class="num">6</span> Re-joining the scholarship</h2>
+    <div class="body"><div class="grid">
+      <div class="f"><label>Date of the dismissal or withdrawal</label><input type="date" id="q_rDate"></div>
+      <div class="f"><label>Reason</label><select id="q_rReason">
+        <option value="academic">Academic dismissal</option><option value="disciplinary">Disciplinary dismissal</option><option value="withdraw">Withdrawal</option></select></div>
+      <div class="f"><label>Credits completed since</label><input type="number" id="q_rCredits" min="0"></div>
+      <div class="f"><label>CGPA now</label><input type="number" id="q_rGpa" step="0.01" min="0" max="4"></div>
+    </div>
+    <label class="chk" style="margin-top:9px"><input type="checkbox" id="q_rCleared"> The disciplinary dismissal was reversed</label>
+    <label class="chk"><input type="checkbox" id="q_rMerit"> Currently at a university on the merit list</label>
+    </div>
+  </section>
+
+  <section class="card" id="sec_pg" style="display:none"><h2><span class="num">6</span> Postgraduate</h2>
+    <div class="body"><div class="grid">
+      <div class="f"><label>Bachelor's awarded on</label><input type="date" id="q_pgDate"></div>
+      <div class="f"><label>Bachelor's major</label><input type="text" id="q_pgMajor"></div>
+      <div class="f"><label>Grading system</label><select id="q_pgSystem">
+        <option value="us">American, out of 4.00</option><option value="uk">British or Irish</option>
+        <option value="au">Australian</option><option value="nz">New Zealand</option></select></div>
+      <div class="f"><label>Final grade</label><input type="text" id="q_pgGrade" placeholder="3.40 or 2.1"></div>
+      <div class="f"><label>Target programme</label><select id="q_pgTarget">
+        <option value="masters">Master's</option><option value="medicine">Advanced medicine</option></select></div>
+      <div class="f"><label>Non-traditional courses taken during the bachelor's</label><input type="number" id="q_pgNonTrad" min="0" value="0"></div>
+    </div>
+    <label class="chk" style="margin-top:9px"><input type="checkbox" id="q_pgNoExt"> Completed the bachelor's without an extension</label>
+    <label class="chk"><input type="checkbox" id="q_pgHigher"> Already holds a master's or doctorate</label>
+    <label class="chk"><input type="checkbox" id="q_pgOffer"> Holds a final offer from a recommended institution</label>
+    </div>
+  </section>
+
+  <section class="card"><h2><span class="num">7</span> Obligations acknowledged</h2>
+    <div class="body">
+      <label class="chk"><input type="checkbox" id="q_ack1"> The student and the guardian were taken through the academic load, the warning system and the stipend deductions</label>
+      <label class="chk"><input type="checkbox" id="q_ack2"> They understand the limits on changing country, institution and major</label>
+      <label class="chk"><input type="checkbox" id="q_ack3"> They understand that dismissal or withdrawal means repaying half of the allowances</label>
+      <label class="chk"><input type="checkbox" id="q_ack4"> They understand the sixty-day deadlines for the certificate, the undertaking and the registration</label>
+      <div class="f" style="margin-top:11px"><label>Counselor notes for the report</label><textarea id="q_notes" rows="3" placeholder="Anything the family should see in the plan"></textarea></div>
+    </div>
+  </section>
+
+</main>
+
+<aside>
+  <div class="panel"><h3>Live read-out</h3><div class="body" id="live"></div></div>
+  <div class="panel"><h3>Flags</h3><div class="body" id="flags"></div></div>
+  <div class="panel"><h3>Matches</h3><div class="body" id="matches"></div></div>
+  <div class="panel" id="partnerPanel"><h3>Partner universities · internal</h3><div class="body" id="partners"></div></div>
+</aside>
+</div></div></div>
+
+<!-- ==================== PLAN ==================== -->
+<div id="planView">
+  <div class="planbar"><div class="in">
+    <button class="btn" id="backBtn">← Back to the form</button>
+    <div class="seg" data-seg="planLang" style="gap:5px">
+      <button data-v="ar">العربية</button><button data-v="en">English</button>
+    </div>
+    <div class="seg" data-seg="planSize" style="gap:5px">
+      <button data-v="one">One page</button><button data-v="full">Full</button>
+    </div>
+    <label class="chk" style="color:#c3d1e2;padding:0"><input type="checkbox" id="lhToggle" checked> Print the Navita letterhead</label>
+    <span class="t" id="planMeta"></span>
+    <button class="btn btn-accent" id="printBtn">Print / Save as PDF</button>
+  </div></div>
+  <div id="sheets"></div>
+</div>
+
+<div class="scrim2" id="scrim2"></div>
+<aside class="drawer2" id="saved">
+  <div class="hd2"><h3>Saved plans</h3><button id="closeSaved">&times;</button></div>
+  <div class="bd2">
+    <div class="f" style="margin-bottom:12px"><input type="search" id="savedQ" placeholder="Search by student name…"></div>
+    <div class="plist" id="savedList"></div>
+  </div>
+</aside>
+<div class="toast" id="toast"></div>
+
+<script src="supabase.js"></script>
+<script src="app.js"></script>
+<script src="db.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
